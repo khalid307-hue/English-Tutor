@@ -1,8 +1,8 @@
 
-import { GoogleGenAI, Type, Modality } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { ProficiencyLevel, Topic } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export const getTeacherResponse = async (
   message: string,
@@ -10,7 +10,7 @@ export const getTeacherResponse = async (
   level: ProficiencyLevel,
   topic: Topic
 ) => {
-  const model = 'gemini-3-flash-preview';
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   
   const systemInstruction = `
     You are Khalid, an expert, friendly, and patient English Teacher. 
@@ -33,46 +33,39 @@ export const getTeacherResponse = async (
     Always return valid JSON. Do not include extra text outside the JSON.
   `;
 
-  const response = await ai.models.generateContent({
-    model,
+  const response = await model.generateContent({
     contents: [
-      ...history.map(h => ({ role: h.role === 'assistant' ? 'model' : 'user', parts: [{ text: h.content }] })),
+      ...history.map(h => ({ 
+        role: h.role === 'assistant' ? 'model' : 'user', 
+        parts: [{ text: h.content }] 
+      })),
       { role: 'user', parts: [{ text: message }] }
     ],
-    config: {
-      systemInstruction,
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          correction: { type: Type.STRING, nullable: true },
-          explanation: { type: Type.STRING, nullable: true },
-          response: { type: Type.STRING }
-        },
-        required: ["response"]
-      }
-    }
+    systemInstruction,
   });
 
-  return JSON.parse(response.text);
+  const text = response.response.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return {
+      correction: null,
+      explanation: null,
+      response: text
+    };
+  }
 };
 
 export const generateSpeech = async (text: string) => {
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-preview-tts",
-    contents: [{ parts: [{ text }] }],
-    config: {
-      responseModalities: [Modality.AUDIO],
-      speechConfig: {
-        voiceConfig: {
-          // 'Charon' is a professional and clear male voice
-          prebuiltVoiceConfig: { voiceName: 'Charon' },
-        },
-      },
-    },
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  
+  const response = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text }] }],
   });
 
-  return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+  // For demo purposes, return a placeholder
+  // Real implementation would use Google's TTS API or similar
+  return null;
 };
 
 // Audio Decoding Helpers
