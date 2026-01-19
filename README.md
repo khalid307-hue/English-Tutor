@@ -1,20 +1,28 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# English Tutor — Zero‑Cost (Client-side) — Preview
 
-# Run and deploy your AI Studio app
+This project is a zero-cost, client-only English tutor web app:
+- Next.js + TypeScript (static build)
+- Browser voice: SpeechRecognition (STT) + SpeechSynthesis (TTS)
+- Local self‑learning: conversations and feedback saved in localStorage
+- Retrieval-based context (local) to improve replies over time
+- No external paid APIs required (works entirely in the browser)
 
-This contains everything you need to run your app locally.
+Quick start (local):
+1. npm install
+2. npm run dev
+3. Open http://localhost:3000
 
-View your app in AI Studio: https://ai.studio/apps/drive/1NasjRdSiHDTuXLPKMbVgqevt-XR_-7vc
+How it works:
+- The app keeps a conversation history in localStorage.
+- For each user message, the app retrieves similar past messages and constructs a context.
+- If a local WASM LLM is installed (optional, user-provided), the app will call it. Otherwise a lightweight generation + retrieval template produces replies.
+- Voice: press microphone to speak; app converts speech to text and sends it to the chat.
 
-## Run Locally
+Deploy to Vercel:
+- Connect this repository to Vercel (free tier).
+- Vercel will auto-build and deploy on push to main.
+- No environment variables are required for the zero-cost setup.
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Notes & next steps:
+- Optionally add a client-side WASM model (gpt4all/llama.cpp) later: the code contains hooks (window.localModel) for that.
+- To collect server-side aggregated training data in future, add a server API and storage (not included in zero-cost mode).
