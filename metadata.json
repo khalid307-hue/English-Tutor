@@ -1,0 +1,7 @@
+{
+  "name": "Khalid English Coach",
+  "description": "An advanced AI-powered English language learning platform that provides real-time grammar correction, personalized explanations, and interactive conversations across multiple proficiency levels.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
