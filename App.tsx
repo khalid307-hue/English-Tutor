@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { ProficiencyLevel, Topic, Message, TeacherState } from './types';
 import Header from './components/Header';
 import ChatBubble from './components/ChatBubble';
@@ -325,6 +326,7 @@ const App: React.FC = () => {
           </div>
         </section>
       </main>
+      <Analytics />
     </div>
   );
 };
